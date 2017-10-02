@@ -537,6 +537,8 @@ class Connection(Base):
         ('mssql', 'Microsoft SQL Server'),
         ('mesos_framework-id', 'Mesos Framework ID'),
         ('jira', 'JIRA',),
+	('aws', 'Amazon Web Services',),
+        ('emr', 'Elastic MapReduce',),
     ]
 
     def __init__(
