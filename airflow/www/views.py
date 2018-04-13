@@ -1326,6 +1326,34 @@ class Airflow(BaseView):
             if dttm == dr.execution_date:
                 dr_state = dr.state
 
+        # Pull the correct xcom variables from the appropriate DAG run
+        xcomlist = session.query(XCom).filter(
+            XCom.dag_id == dag_id,
+            XCom.execution_date == dttm).all()
+
+        attributes = []
+        for xcom in xcomlist:
+            # If not a private key
+            if not xcom.key.startswith('_'):
+                # Add all xcom variables to attributes
+                attributes.append((xcom.task_id, xcom.value))
+
+        # Find the cluster ID in attributes to make DNS REQ
+        cluster_id = ""
+        for key, value in attributes:
+            if ('j-' in value):
+                cluster_id = value
+
+        # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
+        if (len(cluster_id) > 1):
+            # Make BOTO API request
+            boto_client = boto3.client('emr')
+            boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+            dns_name = boto_req['Instances'][0]['PublicDnsName']
+
+        def make_ssh(step):
+            return "ssh -i cloudera-cloudwick.pem " + dns_name + " tail -100f /var/log/hadoop/steps/" + step + "/stdout"
+
         class GraphForm(Form):
             execution_date = SelectField("DAG run", choices=dr_choices)
             arrange = SelectField("Layout", choices=(
@@ -1352,6 +1380,22 @@ class Airflow(BaseView):
         session.close()
         doc_md = markdown.markdown(dag.doc_md) if hasattr(dag, 'doc_md') and dag.doc_md else ''
 
+        # Making SSH commands and attaching them to task obj
+        # Also prevents AF from blowing up if no XCOM vars present
+        if len(attributes) > 0:
+            for key, value in attributes:
+                # If the xcom-attributes exists in tasks
+                if key in tasks:
+                    # If the value is an array (a step)
+                    if isinstance(value, list):
+                        for each_step in value:
+                            # if the key does not exists already, create it
+                            if 'ssh_commands' not in tasks[key]:
+                                # make_ssh() function
+                                tasks[key]['ssh_commands'] = [make_ssh(each_step)]
+                            else:
+                                # Append it onto the existing array
+                                tasks[key]['ssh_commands'].append(make_ssh(each_step))
         return self.render(
             'airflow/graph.html',
             dag=dag,

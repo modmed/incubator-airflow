@@ -138,6 +138,9 @@
           <button id="btn_log" type="button" class="btn btn-primary">
             View Log
           </button>
+          </button><button id="btn_ssh_log" type="button" class="btn btn-primary" style = "margin-left: 3px">
+            Gen. SSH
+          </button>
           <hr/>
           <button id="btn_run" type="button" class="btn btn-primary"
             title="Runs a single task instance">
@@ -239,6 +242,9 @@ function updateQueryStringParameter(uri, key, value) {
       $('.never_active').removeClass('active');
     });
 
+
+    // filter turns into JSON object after dump
+    var tasks = {{ tasks|safe }}
     var dag_id = '{{ dag.dag_id }}';
     var task_id = '';
     var exection_date = '';
@@ -262,6 +268,23 @@ function updateQueryStringParameter(uri, key, value) {
             subdag_id = "{{ dag.dag_id }}."+t;
         }
     }
+
+    $("#btn_ssh_log").click(function() {
+        for (eachTask in tasks){
+                // if the tasks have SSH commands AND is the correct task_id
+                if (tasks[eachTask].ssh_commands && eachTask === task_id){
+                    // If button has NOT been clicked
+                    // Prevents from overclicking the SSH button
+                    if (!$(this).data("clickedBefore")) {
+                        tasks[eachTask].ssh_commands.forEach((oneStep) => {
+                             $("<code>" + oneStep + "</code><hr>").prependTo(".modal-footer")
+                        });
+                        // Clicked = true
+                        $(this).data("clickedBefore", true)
+                    }
+                }
+            }
+        });
 
     $("#btn_rendered").click(function(){
       url = "{{ url_for('airflow.rendered') }}" +

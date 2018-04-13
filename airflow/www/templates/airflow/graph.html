@@ -288,7 +288,7 @@
                 rightNow = moment();
                 // the task duration = right now - start date
                 taskDur = moment.duration(rightNow.diff(taskInstStart, 'minutes'));
-                // return the difference in SECONDS
+                // return the difference in MINUTES
                 ti.duration = taskDur
               }
               tt += "State: " + ti.state + "<br>";
