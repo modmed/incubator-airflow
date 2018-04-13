@@ -281,6 +281,16 @@
               tt += "Started: " + ti.start_date + "<br>";
               tt += "Ended: " + ti.end_date + "<br>";
               tt += "Duration: " + ti.duration + "<br>";
+              // if the task instance duration is null
+              if (ti.duration === null) {
+                // turn task instance start time (str data type) into utc date type in moment
+                taskInstStart = moment.utc(ti.start_date);
+                rightNow = moment();
+                // the task duration = right now - start date
+                taskDur = moment.duration(rightNow.diff(taskInstStart, 'minutes'));
+                // return the difference in SECONDS
+                ti.duration = taskDur
+              }
               tt += "State: " + ti.state + "<br>";
               return tt;
             });
