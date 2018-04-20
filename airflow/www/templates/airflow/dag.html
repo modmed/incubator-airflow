@@ -270,6 +270,7 @@ function updateQueryStringParameter(uri, key, value) {
     }
 
     $("#btn_ssh_log").click(function() {
+      console.log('clicked!')
         for (eachTask in tasks){
                 // if the tasks have SSH commands AND is the correct task_id
                 if (tasks[eachTask].ssh_commands && eachTask === task_id){
