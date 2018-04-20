@@ -249,6 +249,18 @@
         }
     });
 
+    function round(number, precision) {
+        var shift = function (number, precision, reverseShift) {
+            if (reverseShift) {
+                precision = -precision;
+            }  
+            var numArray = ("" + number).split("e");
+            return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
+        };
+        return shift(Math.round(shift(number, precision, false)), precision, true);
+    }
+
+
 
     // Injecting ids to be used for parent/child highlighting
     // Separated from update_node_states since it must work even
@@ -280,22 +292,23 @@
               tt += "Operator: " + task.task_type + "<br>";
               tt += "Started: " + ti.start_date + "<br>";
               tt += "Ended: " + ti.end_date + "<br>";
-              tt += "Duration: " + ti.duration + "<br>";
-              // if the task instance duration is null
-              if (ti.duration === null) {
-                // turn task instance start time (str data type) into utc date type in moment
-                taskInstStart = moment.utc(ti.start_date);
-                rightNow = moment();
-                // the task duration = right now - start date
-                taskDur = moment.duration(rightNow.diff(taskInstStart, 'minutes'));
-                // return the difference in MINUTES
-                ti.duration = taskDur
-              }
               tt += "State: " + ti.state + "<br>";
+              duration = ti.duration
+              // if the task state is not null and is running
+              if (ti.state && ti.state.toLowerCase() === 'running'){ 
+                    rightNow = moment();
+                    // the task duration (seconds) is simply now - task start date
+                    duration = moment.duration(rightNow.diff(ti.start_date));
+                }
+                // Convert the duration to minutes
+                duration = round((duration/60),3)
+                // Throw to UI 
+              tt += "Duration: " + duration +" min" +"<br>";
               return tt;
             });
         });
     }
+    
 
     function clearFocus(){
         d3.selectAll("g.node")

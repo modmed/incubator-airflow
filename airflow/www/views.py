@@ -1344,8 +1344,7 @@ class Airflow(BaseView):
         for key, value in attributes:
             if ('j-' in value):
                 cluster_id = value
-            else: 
-                print('No Cluster found ID in XCOM')
+            
 
         # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
         if (len(cluster_id) > 1):
