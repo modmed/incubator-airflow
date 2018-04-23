@@ -1345,7 +1345,7 @@ class Airflow(BaseView):
         for key, value in attributes:
             if ('j-' in value):
                 cluster_id = value
-            
+        dns_name = None   
         if(len(cluster_id) > 1):
             # Make BOTO API request for only 'MASTER' clusters
             boto_client = boto3.client('emr')
@@ -1360,18 +1360,13 @@ class Airflow(BaseView):
                 logging.info(message)
 
 
-        # # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
-        # if (len(cluster_id) > 1):
-        #     # Make BOTO API request for only 'MASTER' clusters
-        #     boto_client = boto3.client('emr')
-        #     boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
-        #     # if boto_req is not Null AND the 'Instances' key exists  ## AND if the 'Instances' key only has ONE element AND 'PublicDnsName' key exists in that 1st element
-        #     if (boto_req is not None and 'Instances' in boto_req.keys() and len(boto_req['Instances']) == 1 and 'PublicDnsName' in boto_req['Instances'][0].keys()):
-        #         # only then, create this var:
-        #         dns_name = boto_req['Instances'][0]['PublicDnsName'] 
 
         def make_ssh(step):
-            return "ssh -i cloudera-cloudwick.pem " + dns_name + " tail -100f /var/log/hadoop/steps/" + step + "/stdout"
+            if dns_name: 
+                return "ssh -i cloudera-cloudwick.pem " + dns_name + " tail -100f /var/log/hadoop/steps/" + step + "/stdout"
+            
+            else: 
+                return "No DNS name found // Check Logs"
 
         class GraphForm(Form):
             execution_date = SelectField("DAG run", choices=dr_choices)
