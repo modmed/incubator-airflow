@@ -1347,18 +1347,17 @@ class Airflow(BaseView):
                 cluster_id = value
             
         if(len(cluster_id) > 1):
-             
-             # Make BOTO API request for only 'MASTER' clusters
+            # Make BOTO API request for only 'MASTER' clusters
             boto_client = boto3.client('emr')
             try:
             # Do something
-            boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
-            dns_name = boto_req['Instances'][0]['PublicDnsName']
+                boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+                dns_name = boto_req['Instances'][0]['PublicDnsName']
             # Catch exceptions  
             except (Exception, ArithmeticError) as e:
-            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
-            message = template.format(type(e).__name__, e.args)
-            logging.info(message)
+                template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+                message = template.format(type(e).__name__, e.args)
+                logging.info(message)
 
 
         # # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
