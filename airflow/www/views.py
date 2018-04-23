@@ -24,6 +24,7 @@ import dateutil.parser
 import copy
 import json
 import boto3
+import logging
 
 import inspect
 from textwrap import dedent
@@ -1345,16 +1346,30 @@ class Airflow(BaseView):
             if ('j-' in value):
                 cluster_id = value
             
-
-        # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
-        if (len(cluster_id) > 1):
-            # Make BOTO API request for only 'MASTER' clusters
+        if(len(cluster_id) > 1):
+             
+             # Make BOTO API request for only 'MASTER' clusters
             boto_client = boto3.client('emr')
+            try:
+            # Do something
             boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
-            # if boto_req is not Null AND the 'Instances' key exists  ## AND if the 'Instances' key only has ONE element AND 'PublicDnsName' key exists in that 1st element
-            if (boto_req is not None and 'Instances' in boto_req.keys() and len(boto_req['Instances']) == 1 and 'PublicDnsName' in boto_req['Instances'][0].keys()):
-                # only then, create this var:
-                dns_name = boto_req['Instances'][0]['PublicDnsName'] 
+            dns_name = boto_req['Instances'][0]['PublicDnsName']
+            # Catch exceptions  
+            except (Exception, ArithmeticError) as e:
+            template = "An exception of type {0} occurred. Arguments:\n{1!r}"
+            message = template.format(type(e).__name__, e.args)
+            logging.info(message)
+
+
+        # # Prevents AF from blowing up if it doesn't encounter a cluster_id in XCOM
+        # if (len(cluster_id) > 1):
+        #     # Make BOTO API request for only 'MASTER' clusters
+        #     boto_client = boto3.client('emr')
+        #     boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
+        #     # if boto_req is not Null AND the 'Instances' key exists  ## AND if the 'Instances' key only has ONE element AND 'PublicDnsName' key exists in that 1st element
+        #     if (boto_req is not None and 'Instances' in boto_req.keys() and len(boto_req['Instances']) == 1 and 'PublicDnsName' in boto_req['Instances'][0].keys()):
+        #         # only then, create this var:
+        #         dns_name = boto_req['Instances'][0]['PublicDnsName'] 
 
         def make_ssh(step):
             return "ssh -i cloudera-cloudwick.pem " + dns_name + " tail -100f /var/log/hadoop/steps/" + step + "/stdout"
