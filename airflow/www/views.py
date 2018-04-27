@@ -1349,12 +1349,15 @@ class Airflow(BaseView):
         if(len(cluster_id) > 1):
             # Make BOTO API request for only 'MASTER' clusters
             boto_client = boto3.client('emr')
+            # Try to hit the API 
             try:
-            # Do something
                 boto_req = boto_client.list_instances(ClusterId=cluster_id, InstanceGroupTypes=['MASTER'])
                 dns_name = boto_req['Instances'][0]['PublicDnsName']
-            # Catch exceptions  
-            except (Exception, ArithmeticError) as e:
+                # Add string literal for  SSH 
+                # ec2-99-999-999-999.compute-1.amazonaws.com  => ec2-user@ec2-99-999-999-999.compute-1.amazonaws.com
+                dns_name = 'ec2-user@' + dns_name 
+            # Catch errors & exceptions  
+            except (Exception, ArithmeticError) as e: 
                 template = "An exception of type {0} occurred. Arguments:\n{1!r}"
                 message = template.format(type(e).__name__, e.args)
                 logging.info(message)
