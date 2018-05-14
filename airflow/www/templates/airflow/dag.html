@@ -244,7 +244,7 @@ function updateQueryStringParameter(uri, key, value) {
 
 
     // filter turns into JSON object after dump
-    var tasks = {{ tasks|safe }};
+    var tasks = '{{ tasks|safe }}';
     var dag_id = '{{ dag.dag_id }}';
     var task_id = '';
     var exection_date = '';
