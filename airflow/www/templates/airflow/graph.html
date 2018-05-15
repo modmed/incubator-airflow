@@ -249,7 +249,7 @@
         }
     });
 
-    // Rounding the tool tips times down to something manageable 
+    // Rounding the tooltip times down to something manageable 
     function round(number, precision) {
         var shift = function (number, precision, reverseShift) {
             if (reverseShift) {
@@ -275,6 +275,8 @@
     }
 
 
+    
+
     // Assigning css classes based on state to nodes
     function update_nodes_states(task_instances) {
         $.each(task_instances, function(task_id, ti) {
@@ -294,21 +296,31 @@
               tt += "Started: " + ti.start_date + "<br>";
               tt += "Ended: " + ti.end_date + "<br>";
               tt += "State: " + ti.state + "<br>";
+              console.log('TI DURATION', ti.duration)
+              console.log('TI STATE', ti.state),
+              console.log('TASK INSTANCE', ti),
+
               duration = ti.duration
-              // if the task state is not null and is running
+              // if the task state is running
               if (ti.state && ti.state.toLowerCase() === 'running'){ 
                     rightNow = moment();
+                    console.log('RIGHT NOW ', rightNow)
                     task_start = moment(ti.start_date)
+                    console.log('TASK START', task_start)
                     // the task duration (seconds) is simply now - task start date
                     duration = (rightNow.diff(task_start, 'seconds'));
+                    console.log('TASK DUR AFTER MATH DIFF', duration)
                 }
                 // Convert the duration to minutes
                 duration = round((duration/60),3)
+                console.log('TASK DUR WITH ROUND', duration)
+                
 
 
               tt += "Duration: " + duration +" min" +"<br>";
               return tt;
             });
+            console.log('==============================>')
         });
     }
     
