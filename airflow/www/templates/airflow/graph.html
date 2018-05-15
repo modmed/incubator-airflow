@@ -301,7 +301,12 @@
               if (ti.state && ti.state.toLowerCase() === 'running'){ 
                      // Convert the time to UTC for subtraction since AF time is in UTC
                     rightNow = moment.utc();
+                    rn = Date.now()
+                    console.log('RN',rightNow)
                     task_start = moment(ti.start_date)
+                    console.log('TASK START BEFORE UTC', task_start)
+                    task_start = task_start.utc()
+                    console.log('TASK START AFTER UTC',task_start)
                     // the task duration (seconds) is simply now - task start date
                     duration = (rightNow.diff(task_start, 'seconds'));
                 }
