@@ -296,31 +296,21 @@
               tt += "Started: " + ti.start_date + "<br>";
               tt += "Ended: " + ti.end_date + "<br>";
               tt += "State: " + ti.state + "<br>";
-              console.log('TI DURATION', ti.duration)
-              console.log('TI STATE', ti.state),
-              console.log('TASK INSTANCE', ti),
-
               duration = ti.duration
-              // if the task state is running
+              // if the task state exists and is running
               if (ti.state && ti.state.toLowerCase() === 'running'){ 
                     rightNow = moment();
-                    console.log('RIGHT NOW ', rightNow)
+                    // Convert the time to UTC for subtraction since AF time is in UTC
+                    rightNow = rightNow.utc()
                     task_start = moment(ti.start_date)
-                    console.log('TASK START', task_start)
                     // the task duration (seconds) is simply now - task start date
                     duration = (rightNow.diff(task_start, 'seconds'));
-                    console.log('TASK DUR AFTER MATH DIFF', duration)
                 }
                 // Convert the duration to minutes
                 duration = round((duration/60),3)
-                console.log('TASK DUR WITH ROUND', duration)
-                
-
-
-              tt += "Duration: " + duration +" min" +"<br>";
-              return tt;
+                tt += "Duration: " + duration +" min" +"<br>";
+                return tt;
             });
-            console.log('==============================>')
         });
     }
     
