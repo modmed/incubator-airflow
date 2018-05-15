@@ -299,23 +299,17 @@
               duration = ti.duration
               // if the task state exists and is running
               if (ti.state && ti.state.toLowerCase() === 'running'){ 
-                    rightNow = moment();
-                    console.log('rightNow b4 UTC change: ' + rightNow)
-                    // Convert the time to UTC for subtraction since AF time is in UTC
-                    rightNow = rightNow.utc()
-                    console.log('rightNow after UTC change: ' + rightNow)
+                     // Convert the time to UTC for subtraction since AF time is in UTC
+                    rightNow = moment.utc();
                     task_start = moment(ti.start_date)
-                    console.log('task_start: ' + tasks)
                     // the task duration (seconds) is simply now - task start date
                     duration = (rightNow.diff(task_start, 'seconds'));
-                    console.log('duration after difference: ' + duration)
                 }
                 // Convert the duration to minutes
                 duration = round((duration/60),3)
                 tt += "Duration: " + duration +" min" +"<br>";
                 return tt;
             });
-            console.log('================================================>')
         });
     }
     
