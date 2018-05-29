@@ -243,8 +243,11 @@ function updateQueryStringParameter(uri, key, value) {
     });
 
 
-    // filter turns into JSON object after dump
-    var tasks = '{{ tasks|safe }}';
+    // Jinja filters : 
+    //      |safe = decodes JSON strings into usable JSON
+    //      |default = gives var a default value if none is given
+    var tasks = {{ tasks | safe | default("`cow-filler-moo ( ͡° ͜ʖ ͡°)`", true) }};
+    
     var dag_id = '{{ dag.dag_id }}';
     var task_id = '';
     var exection_date = '';
@@ -270,7 +273,6 @@ function updateQueryStringParameter(uri, key, value) {
     }
 
     $("#btn_ssh_log").click(function() {
-      console.log('clicked!')
         for (eachTask in tasks){
                 // if the tasks have SSH commands AND is the correct task_id
                 if (tasks[eachTask].ssh_commands && eachTask === task_id){
