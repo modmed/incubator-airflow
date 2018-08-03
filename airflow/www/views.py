@@ -1778,13 +1778,15 @@ class Airflow(BaseView):
     @wwwutils.action_logging
     def varimport(self):
         try:
-            out = str(request.files['file'].read())
-            d = json.loads(out)
+            out = request.files['file'].read()
+            json_arr = out.decode("utf-8")
+            d = json.loads(json_arr)
+
         except Exception:
             flash("Missing file or syntax error.")
         else:
             for k, v in d.items():
-                models.Variable.set(k, v, serialize_json=isinstance(v, dict))
+                models.Variable.set(k, v, serialize_json=isinstance(v, dict) or isinstance(v, list))
             flash("{} variable(s) successfully updated.".format(len(d)))
         return redirect('/admin/variable')
 
