@@ -4069,6 +4069,20 @@ class XCom(Base, LoggingMixin):
         Index('idx_xcom_dag_task_date', dag_id, task_id, execution_date, unique=False),
     )
 
+    @reconstructor
+    def init_on_load(self):
+        enable_pickling = configuration.getboolean('core', 'enable_xcom_pickling')
+        if enable_pickling:
+            self.value = pickle.loads(self.value)
+        else:
+            try:
+                self.value = json.loads(self.value.decode('UTF-8'))
+            except (UnicodeEncodeError, ValueError):
+                # For backward-compatibility.
+                # Preventing errors in webserver
+                # due to XComs mixed with pickled and unpickled.
+                self.value = pickle.loads(self.value)
+
     def __repr__(self):
         return '<XCom "{key}" ({task_id} @ {execution_date})>'.format(
             key=self.key,
