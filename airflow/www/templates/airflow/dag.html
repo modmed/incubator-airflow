@@ -298,6 +298,8 @@ function updateQueryStringParameter(uri, key, value) {
     });
 
     var id = '';
+     //  The instance of this tasks variable is re-used across other  templates in the app's front-end and thus requires a default value
+﻿   var tasks = {{ tasks|safe|default("` Default`;", true)}};
     var dag_id = '{{ dag.dag_id }}';
     var task_id = '';
     var exection_date = '';
