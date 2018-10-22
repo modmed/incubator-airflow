@@ -1335,6 +1335,7 @@ class Airflow(BaseView):
 
         # Find the cluster ID in attributes to make DNS REQ
         cluster_id = ""
+        dns_name = None
         for key, value in attributes:
             if ('j-' in value):
                 cluster_id = value
@@ -1821,7 +1822,7 @@ class Airflow(BaseView):
                 d = datetime.utcnow() - dateutil.parser.parse(tid["start_date"])
                 tid["duration"] = d.total_seconds()
             return tid
-            
+
         task_instances = {
             ti.task_id: set_duration(alchemy_to_dict(ti))
             for ti in dag.get_task_instances(session, dttm, dttm)}
